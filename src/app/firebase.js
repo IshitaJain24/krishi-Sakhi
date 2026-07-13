@@ -2,13 +2,18 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
+const cleanEnvVar = (val) => {
+  if (typeof val !== "string") return val;
+  return val.replace(/^["']|["']$/g, "");
+};
+
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+  apiKey: cleanEnvVar(process.env.NEXT_PUBLIC_FIREBASE_API_KEY),
+  authDomain: cleanEnvVar(process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN),
+  projectId: cleanEnvVar(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID),
+  storageBucket: cleanEnvVar(process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET),
+  messagingSenderId: cleanEnvVar(process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID),
+  appId: cleanEnvVar(process.env.NEXT_PUBLIC_FIREBASE_APP_ID)
 };
 
 const hasValidKey = firebaseConfig.apiKey && firebaseConfig.apiKey.startsWith("AIzaSy");
@@ -25,6 +30,12 @@ if (hasValidKey) {
   // Use a fallback config during build/SSR so page generation doesn't crash.
   // This allows the Next.js build to succeed even if Firebase env variables 
   // are missing or invalid in the build environment.
+  if (typeof window !== "undefined") {
+    console.warn(
+      "⚠️ Krishi Sakhi Warning: NEXT_PUBLIC_FIREBASE_API_KEY is missing or invalid. " +
+      "Falling back to dummy Firebase configuration. Ensure your .env.local file is loaded."
+    );
+  }
   const fallbackConfig = {
     apiKey: "AIzaSyDummyKeyForBuildPrerenderingOnly",
     authDomain: "dummy-project.firebaseapp.com",
